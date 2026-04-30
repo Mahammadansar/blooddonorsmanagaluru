@@ -5,7 +5,8 @@
   "description": "BLOOD DONORS MANGALURU (R) — simple JSON-backed donor registry",
   "type": "module",
   "scripts": {
-    "dev": "node dev/server.js"
+    "dev": "node dev/server.js",
+    "start": "node dev/server.js"
   },
   "dependencies": {
     "express": "^4.19.2",

@@ -10,7 +10,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json({ limit: "200kb" }));
 
-const DATA_PATH = path.join(__dirname, "..", "data", "donors.json");
+const DATA_PATH =
+  process.env.DONORS_JSON_PATH ||
+  (process.env.DATA_DIR ? path.join(process.env.DATA_DIR, "donors.json") : "") ||
+  path.join(__dirname, "..", "data", "donors.json");
 const CERT_TEMPLATE_PATH = path.join(__dirname, "..", "BDM_Certificate.pdf");
 
 async function readDonors() {

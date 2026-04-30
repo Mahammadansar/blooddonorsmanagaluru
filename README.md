@@ -44,3 +44,25 @@ To keep donor registrations persistent on Vercel, set up **Vercel KV** and add t
 - Add the KV environment variables in the Vercel project settings
 - Deploy
 
+## Deploy on Railway
+
+Railway runs the Express server (which also serves the static site).
+
+### Steps
+
+- Push this repo to GitHub
+- Railway → **New Project** → **Deploy from GitHub repo**
+- Railway will run:
+  - Build: `npm install`
+  - Start: `npm start`
+- Railway automatically sets `PORT` (the server already reads it)
+
+### Persistent donor storage (recommended)
+
+By default, writing to disk may not persist across redeploys.
+
+Best option: add a **Railway Volume**, mount it (example mount path: `/data`), then set:
+- `DATA_DIR=/data`
+
+This makes donor registrations persist at `/data/donors.json`.
+
