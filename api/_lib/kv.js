@@ -6,7 +6,18 @@ function json(res, status, data) {
 
 function getEnv(name) {
   const v = process.env[name];
-  return typeof v === "string" ? v : "";
+  if (typeof v === "string" && v) return v;
+
+  // Vercel Storage integrations can add a custom prefix, e.g.
+  // `KV213_KV_REST_API_URL`. Detect that automatically.
+  const suffix = `_${name}`;
+  for (const k of Object.keys(process.env || {})) {
+    if (!k.endsWith(suffix)) continue;
+    const vv = process.env[k];
+    if (typeof vv === "string" && vv) return vv;
+  }
+
+  return "";
 }
 
 async function kvFetch(path, init) {
