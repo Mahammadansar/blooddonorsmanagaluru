@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Mahammad Azhar",
+    "phone": "7259808213",
+    "blood": "A+",
+    "area": "Puttur"
+  },
+  {
+    "name": "Nizamuddeen",
+    "phone": "9901317966",
+    "blood": "O+",
+    "area": "Uppinangady"
+  },
+  {
+    "name": "Mahammad Ansar",
+    "phone": "7338490213",
+    "blood": "A+",
+    "area": "Puttur"
+  },
+  {
+    "name": "Ayesha M.",
+    "phone": "9876543210",
+    "blood": "O+",
+    "area": "Kadri"
+  },
+  {
+    "name": "Rohan P.",
+    "phone": "9123456780",
+    "blood": "A+",
+    "area": "Bejai"
+  },
+  {
+    "name": "Farhan S.",
+    "phone": "9988776655",
+    "blood": "B+",
+    "area": "Kankanady"
+  },
+  {
+    "name": "Meera N.",
+    "phone": "9012345678",
+    "blood": "AB+",
+    "area": "Bunder"
+  },
+  {
+    "name": "Vishal K.",
+    "phone": "9090909090",
+    "blood": "O-",
+    "area": "Surathkal"
+  },
+  {
+    "name": "Nidhi R.",
+    "phone": "9811111111",
+    "blood": "A-",
+    "area": "Ullal"
+  },
+  {
+    "name": "Shamim A.",
+    "phone": "9822222222",
+    "blood": "B-",
+    "area": "Kadri"
+  },
+  {
+    "name": "Keerthi S.",
+    "phone": "9833333333",
+    "blood": "O+",
+    "area": "Bunder"
+  }
+]

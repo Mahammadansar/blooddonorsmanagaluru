@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#09090b" />
+    <title>BLOOD DONORS MANGALURU (R)</title>
+    <meta
+      name="description"
+      content="BLOOD DONORS MANGALURU (R) — DONATE BLOOD DONATE LIFE. Find donors fast and join the network."
+    />
+    <link rel="icon" type="image/png" href="./BDM_logo.png" />
+    <link rel="apple-touch-icon" href="./BDM_logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loader" class="loader" aria-hidden="true">
+      <div class="loader__card" role="status" aria-live="polite" aria-label="Loading">
+        <div class="loader__beat" aria-hidden="true">
+          <svg class="loaderBeat" viewBox="0 0 720 90" role="img" aria-label="Loading animation">
+            <path
+              class="loaderBeat__line"
+              d="M0,45 L120,45 L160,45 L180,10 L210,80 L245,45 L330,45 L360,45 L380,20 L405,75 L440,45 L720,45"
+            />
+          </svg>
+          <span class="loaderBeat__dot" aria-hidden="true"></span>
+        </div>
+        <div class="loader__text">
+          <div class="loader__brand">BLOOD DONORS MANGALURU (R)</div>
+          <div class="loader__hint">DONATE BLOOD DONATE LIFE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ambient background canvas (particles) -->
+    <canvas id="bgParticles" class="bgParticles" aria-hidden="true"></canvas>
+
+    <!-- Sticky Navbar -->
+    <header class="navWrap">
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="#top" aria-label="Go to top">
+          <span class="brand__mark" aria-hidden="true">
+            <img class="brand__logo" src="./BDM_logo.png" alt="" />
+          </span>
+          <span class="brand__text">BLOOD DONORS <span>MANGALURU (R)</span></span>
+        </a>
+
+        <div class="nav__links" role="navigation" aria-label="Sections">
+          <a href="#search">Live Search</a>
+          <a href="#why">Why Donate</a>
+          <a href="#join">Become a Donor</a>
+          <a href="about.html">About</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="certificate.html">Donor Certificate</a>
+          <a href="#emergency">Emergency</a>
+          <a href="#impact">Impact</a>
+        </div>
+
+        <button class="nav__toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navDrawer">
+          <span class="srOnly">Open menu</span>
+          <span class="burger" aria-hidden="true"></span>
+        </button>
+      </nav>
+
+      <div class="navDrawer" id="navDrawer" hidden>
+        <a href="#search">Live Search</a>
+        <a href="#why">Why Donate</a>
+        <a href="#join">Become a Donor</a>
+        <a href="about.html">About</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="certificate.html">Donor Certificate</a>
+        <a href="#emergency">Emergency</a>
+        <a href="#impact">Impact</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero__bg" aria-hidden="true">
+          <div class="flow flow--a"></div>
+          <div class="flow flow--b"></div>
+          <div class="glowOrb" aria-hidden="true">
+            <span class="glowOrb__core"></span>
+            <span class="glowOrb__ring glowOrb__ring--1"></span>
+            <span class="glowOrb__ring glowOrb__ring--2"></span>
+            <span class="glowOrb__ring glowOrb__ring--3"></span>
+          </div>
+        </div>
+
+        <div class="hero__content">
+          <p class="kicker reveal">DONATE BLOOD DONATE LIFE</p>
+          <h1 class="hero__title reveal">
+            Donate Blood.<br />
+            <span class="hero__titleAccent">Donate Life.</span>
+          </h1>
+          <p class="hero__subtitle reveal">
+            A single drop can create a ripple of hope in <strong>Mangalore</strong>.
+          </p>
+
+          <div class="hero__cta reveal">
+            <a class="btn btn--primary" href="#search">
+              <span>Find Donor</span>
+              <span class="btn__edge" aria-hidden="true"></span>
+            </a>
+            <a class="btn btn--ghost" href="#join">
+              <span>Join as Donor</span>
+              <span class="btn__edge" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="hero__heartbeat reveal" aria-hidden="true">
+            <svg viewBox="0 0 720 90" class="heartbeat">
+              <path
+                class="heartbeat__line"
+                d="M0,45 L120,45 L160,45 L180,10 L210,80 L245,45 L330,45 L360,45 L380,20 L405,75 L440,45 L720,45"
+              />
+            </svg>
+            <div class="heartbeat__dot"></div>
+          </div>
+        </div>
+
+        <div class="hero__aside reveal">
+          <div class="heroCard">
+            <div class="heroCard__top">
+              <span class="badge">Live</span>
+              <span class="tiny">Mangalore • Karnataka</span>
+            </div>
+            <div class="heroCard__metric">
+              <div class="heroCard__num" data-counter="camps" data-target="430">0</div>
+              <div class="heroCard__label">blood donation camps</div>
+            </div>
+            <div class="heroCard__divider"></div>
+            <div class="heroCard__metric">
+              <div class="heroCard__num" data-counter="units" data-target="35000">0</div>
+              <div class="heroCard__label">units supplied</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Angled Divider -->
+      <div class="divider divider--angle" aria-hidden="true"></div>
+
+      <!-- LIVE SEARCH -->
+      <section class="section section--search" id="search">
+        <div class="section__head">
+          <h2 class="section__title reveal">Live Blood Search</h2>
+          <p class="section__subtitle reveal">
+            Search donors by blood group and area. Hover cards to feel the glow.
+          </p>
+        </div>
+
+        <div class="searchLayout">
+          <div class="glassCard reveal">
+            <div class="glassCard__title">
+              <span class="glassDot" aria-hidden="true"></span>
+              Find a donor in seconds
+            </div>
+            <form id="searchForm" class="searchForm" autocomplete="off">
+              <label class="field">
+                <span class="field__label">Blood Group</span>
+                <select id="filterBlood" class="field__control">
+                  <option value="all">Any</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Area (Mangalore)</span>
+                <select id="filterArea" class="field__control">
+                  <option value="all">All Areas</option>
+                  <option value="Kadri">Kadri</option>
+                  <option value="Bejai">Bejai</option>
+                  <option value="Kankanady">Kankanady</option>
+                  <option value="Bunder">Bunder</option>
+                  <option value="Surathkal">Surathkal</option>
+                  <option value="Ullal">Ullal</option>
+                </select>
+              </label>
+
+              <label class="field field--wide">
+                <span class="field__label">Quick name lookup</span>
+                <input
+                  id="filterName"
+                  class="field__control"
+                  type="text"
+                  inputmode="search"
+                  placeholder="Type a name (optional)…"
+                />
+              </label>
+
+              <div class="searchForm__actions">
+                <button class="btn btn--primary" type="submit">
+                  <span>Search</span>
+                  <span class="btn__edge" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn--soft" id="resetSearch" type="button">
+                  <span>Reset</span>
+                  <span class="btn__edge" aria-hidden="true"></span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="resultsWrap">
+            <div class="resultsMeta reveal">
+              <div class="resultsMeta__left">
+                <span class="pill">Tip</span>
+                <span class="tiny">Tap a card to copy contact.</span>
+              </div>
+              <div class="resultsMeta__right">
+                <span class="tiny" id="resultsCount">0 results</span>
+                <button class="btn btn--soft resultsToggle" id="resultsToggle" type="button" hidden>
+                  <span>Show more</span>
+                  <span class="btn__edge" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+
+            <div id="resultsGrid" class="resultsGrid" aria-live="polite"></div>
+
+            <div id="noResults" class="noResults" hidden>
+              <div class="noResults__icon" aria-hidden="true">
+                <!-- Simple droplet -->
+                <svg viewBox="0 0 64 64">
+                  <path
+                    d="M32 6C25 17 14 29 14 40c0 10 8 18 18 18s18-8 18-18C50 29 39 17 32 6z"
+                    fill="currentColor"
+                    opacity="0.9"
+                  />
+                </svg>
+              </div>
+              <div class="noResults__title">No matches yet.</div>
+              <div class="noResults__text">Try a different area or group — hope is nearby.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Curved Divider -->
+      <div class="divider divider--wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+          <path
+            d="M0,40 C240,120 480,0 720,60 C960,120 1200,20 1440,70 L1440,120 L0,120 Z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
+
+      <!-- WHY DONATE -->
+      <section class="section" id="why">
+        <div class="section__head section__head--split">
+          <div>
+            <h2 class="section__title reveal">Why donate?</h2>
+            <p class="section__subtitle reveal">
+              Because emergencies don’t wait. Your choice becomes someone’s tomorrow.
+            </p>
+          </div>
+          <div class="quote reveal">
+            <div class="quote__mark" aria-hidden="true">“</div>
+            <div class="quote__text">Urgent doesn’t mean hopeless. It means we act.</div>
+          </div>
+        </div>
+
+        <div class="grid4">
+          <article class="impactCard reveal">
+            <div class="impactCard__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 21s-7-4.6-9.3-9.1C1.3 9 2.9 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.1 0 4.7 3 3.3 5.9C19 16.4 12 21 12 21z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <h3 class="impactCard__title">Donate Life</h3>
+            <p class="impactCard__text">One donation can support multiple patients in critical care.</p>
+          </article>
+
+          <article class="impactCard reveal">
+            <div class="impactCard__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M21 12a9 9 0 1 1-3.6-7.2"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M21 3v6h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <h3 class="impactCard__title">Emergency Support</h3>
+            <p class="impactCard__text">Fast matches help families act immediately when seconds matter.</p>
+          </article>
+
+          <article class="impactCard reveal">
+            <div class="impactCard__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"
+                  fill="currentColor"
+                  opacity="0.95"
+                />
+                <path
+                  d="M4 21a8 8 0 0 1 16 0"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <h3 class="impactCard__title">Community Impact</h3>
+            <p class="impactCard__text">A donor network means Mangalore stands up for Mangalore.</p>
+          </article>
+
+          <article class="impactCard reveal">
+            <div class="impactCard__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5L12 2z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <h3 class="impactCard__title">Hope Multiplies</h3>
+            <p class="impactCard__text">Small action, massive ripple — shared humanity in motion.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Angled Divider -->
+      <div class="divider divider--angle divider--angleFlip" aria-hidden="true"></div>
+
+      <!-- BECOME A DONOR -->
+      <section class="section section--join" id="join">
+        <div class="joinLayout">
+          <div class="joinCopy reveal">
+            <h2 class="section__title">Become a donor</h2>
+            <p class="section__subtitle">
+              Join the network. When a call comes, you could be the reason someone gets a second chance.
+            </p>
+            <ul class="ticks">
+              <li>Quick sign-up</li>
+              <li>Privacy-respectful</li>
+              <li>Ready when needed</li>
+            </ul>
+          </div>
+
+          <div class="joinCard reveal">
+            <div class="joinCard__glow" aria-hidden="true"></div>
+            <form id="donorForm" class="donorForm" novalidate>
+              <div class="donorForm__row">
+                <label class="field">
+                  <span class="field__label">Name</span>
+                  <input id="donorName" class="field__control" type="text" placeholder="Your full name" required />
+                  <span class="field__error" data-error-for="donorName" aria-live="polite"></span>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Phone</span>
+                  <input
+                    id="donorPhone"
+                    class="field__control"
+                    type="tel"
+                    inputmode="tel"
+                    placeholder="10-digit number"
+                    required
+                  />
+                  <span class="field__error" data-error-for="donorPhone" aria-live="polite"></span>
+                </label>
+              </div>
+
+              <div class="donorForm__row">
+                <label class="field">
+                  <span class="field__label">Blood Group</span>
+                  <select id="donorBlood" class="field__control" required>
+                    <option value="" selected disabled>Choose…</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+                  <span class="field__error" data-error-for="donorBlood" aria-live="polite"></span>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Location</span>
+                  <input id="donorLocation" class="field__control" type="text" placeholder="Area / landmark" required />
+                  <span class="field__error" data-error-for="donorLocation" aria-live="polite"></span>
+                </label>
+              </div>
+
+              <div class="donorForm__actions">
+                <button class="btn btn--primary" type="submit">
+                  <span>Join as Donor</span>
+                  <span class="btn__edge" aria-hidden="true"></span>
+                </button>
+                <p class="tiny subtle">By joining, you agree to be contacted during emergencies.</p>
+              </div>
+            </form>
+
+            <div id="successOverlay" class="success" hidden role="status" aria-live="polite" aria-label="Success">
+              <div class="success__ring" aria-hidden="true"></div>
+              <div class="success__check" aria-hidden="true">
+                <svg viewBox="0 0 52 52">
+                  <path
+                    d="M14 27.2 22.5 35.6 38.5 19.6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <div class="success__title">Registered.</div>
+              <div class="success__text">Your details are now available in Live Blood Search.</div>
+              <div class="success__actions">
+                <a class="btn btn--primary" href="certificate.html">
+                  <span>Get Certificate</span>
+                  <span class="btn__edge" aria-hidden="true"></span>
+                </a>
+                <button id="successClose" class="btn btn--soft" type="button">
+                  <span>Close</span>
+                  <span class="btn__edge" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMERGENCY -->
+      <section class="emergency" id="emergency">
+        <div class="emergency__bg" aria-hidden="true"></div>
+        <div class="emergency__inner">
+          <div class="emergency__left reveal">
+            <h2 class="emergency__title">Emergency? Find blood in seconds.</h2>
+            <p class="emergency__text">
+              Don’t scroll. Don’t wait. Tap to call or WhatsApp and get help immediately.
+            </p>
+          </div>
+
+          <div class="emergency__actions reveal">
+            <a class="btn btn--danger" href="tel:+919999999999">
+              <span>Call Now</span>
+              <span class="btn__edge" aria-hidden="true"></span>
+            </a>
+            <a class="btn btn--dangerSoft" href="https://wa.me/917353072656" target="_blank" rel="noreferrer">
+              <span>WhatsApp</span>
+              <span class="btn__edge" aria-hidden="true"></span>
+            </a>
+            <div class="urgency" aria-hidden="true">
+              <span class="urgency__dot"></span>
+              <span class="urgency__text">Urgent</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- IMPACT COUNTERS -->
+      <section class="section" id="impact">
+        <div class="section__head">
+          <h2 class="section__title reveal">Impact Counter</h2>
+          <p class="section__subtitle reveal">Numbers are cold. But the lives behind them are not.</p>
+        </div>
+
+        <div class="stats">
+          <div class="statCard reveal">
+            <div class="statCard__label">Donation Camps</div>
+            <div class="statCard__value" data-countup data-target="430">0</div>
+            <div class="statCard__bar" aria-hidden="true"></div>
+          </div>
+          <div class="statCard reveal">
+            <div class="statCard__label">Units Supplied</div>
+            <div class="statCard__value" data-countup data-target="35000">0</div>
+            <div class="statCard__bar" aria-hidden="true"></div>
+          </div>
+          <div class="statCard reveal">
+            <div class="statCard__label">Patients Helped</div>
+            <div class="statCard__value" data-countup data-target="35000">0</div>
+            <div class="statCard__bar" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer__inner">
+        <div class="footer__left">
+          <div class="brand brand--footer">
+            <span class="brand__mark" aria-hidden="true"></span>
+            <span class="brand__text">BLOOD DONORS <span>MANGALURU (R)</span></span>
+          </div>
+          <p class="tiny subtle">
+            Built to feel urgent — designed to stay hopeful.
+          </p>
+          <div class="footer__contact tiny">
+            <div class="contactLine">
+              <span class="contactIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M6 2h4l2 6-3 2c1.5 3 3.5 5 6.5 6.5l2-3 6 2v4c0 1-1 2-2 2C10 22 2 14 2 4c0-1 1-2 2-2h2z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              <strong>Contact</strong>
+              <span class="contactSep">—</span>
+              <a href="tel:+919845707090">+91 98457 07090</a>
+              <span class="contactSep">•</span>
+              <a href="tel:+919036855975">+91 90368 55975</a>
+            </div>
+            <div class="contactLine">
+              <span class="contactIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12.05 2C6.5 2 2 6.15 2 11.3c0 2.9 1.4 5.5 3.7 7.2L5 22l3.7-1.8c1.1.3 2.2.5 3.35.5 5.55 0 10.05-4.15 10.05-9.4S17.6 2 12.05 2z"
+                    fill="currentColor"
+                    opacity="0.28"
+                  />
+                  <path
+                    d="M9.1 7.6c.2-.4.5-.4.7-.4h.6c.2 0 .4.1.5.4l.8 2c.1.3.1.6-.1.8l-.5.6c-.1.1-.2.3-.1.5.5 1 1.3 1.9 2.3 2.5.2.1.4.1.5 0l.7-.4c.2-.1.5-.2.8-.1l2 .7c.3.1.4.3.5.5v.7c0 .2-.1.5-.4.7-.5.4-1.6.9-3 .5-3-.8-6.5-4-7.5-7-.4-1.3.1-2.4.5-2.9z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              <strong>Join WhatsApp</strong>
+              <span class="contactSep">—</span>
+              <a href="https://wa.me/917353072656" target="_blank" rel="noreferrer">+91 73530 72656</a>
+            </div>
+            <div class="contactLine">
+              <span class="contactIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M4 6h16v12H4V6zm8 7L4.8 8.2h14.4L12 13z"
+                    fill="currentColor"
+                    opacity="0.9"
+                  />
+                </svg>
+              </span>
+              <strong>Email</strong>
+              <span class="contactSep">—</span>
+              <a href="mailto:blooddonorsmangalurubdm@gmail.com">blooddonorsmangalurubdm@gmail.com</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer__right">
+          <div class="footer__social" aria-label="Social links">
+            <a
+              class="iconBtn"
+              href="https://www.instagram.com/blooddonorsmangaluru?igsh=NXg4cms2OHRtcDhp&utm_source=qr"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram (Blooddonorsmangaluru)"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M12 17a5 5 0 1 0-5-5 5 5 0 0 0 5 5z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path d="M17.5 6.5h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+              </svg>
+            </a>
+            <a
+              class="iconBtn"
+              href="https://www.facebook.com/share/1ELQ3aF6bU/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Facebook (Blood Donors Mangaluru)"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M14 8h3V5h-3a4 4 0 0 0-4 4v3H7v3h3v7h3v-7h3l1-3h-4V9a1 1 0 0 1 1-1z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+            <a class="iconBtn" href="#" aria-label="X / Twitter (not configured)">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.8-6.1L6.7 22H3.6l7.3-8.4L1 2h6.3l4.4 5.6L18.9 2z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+          </div>
+
+          <div class="footer__links tiny">
+            <a href="#search">Live Search</a>
+            <a href="#join">Become a Donor</a>
+            <a href="about.html">About</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="#emergency">Emergency</a>
+          </div>
+
+          <div class="tiny subtle footer__legal">© <span id="year"></span> BLOOD DONORS MANGALURU (R)</div>
+        </div>
+      </div>
+    </footer>
+
+    <button id="toTop" class="toTop" type="button" aria-label="Back to top">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5l7 7-2 2-5-5-5 5-2-2 7-7z" fill="currentColor" />
+      </svg>
+    </button>
+
+    <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
