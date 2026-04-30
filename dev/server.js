@@ -10,8 +10,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json({ limit: "200kb" }));
 
-const DATA_PATH = path.join(__dirname, "data", "donors.json");
-const CERT_TEMPLATE_PATH = path.join(__dirname, "BDM_Certificate.pdf");
+const DATA_PATH = path.join(__dirname, "..", "data", "donors.json");
+const CERT_TEMPLATE_PATH = path.join(__dirname, "..", "BDM_Certificate.pdf");
 
 async function readDonors() {
   try {
@@ -77,8 +77,7 @@ function makeCertificateId(phone) {
 
 // Returns a filled PDF using the provided blank template.
 async function buildCertificatePdf({ phone, title, bloodBank, donationDate, place, donor }) {
-  let templateBytes;
-  templateBytes = await fs.readFile(CERT_TEMPLATE_PATH);
+  const templateBytes = await fs.readFile(CERT_TEMPLATE_PATH);
 
   const pdfDoc = await PDFDocument.load(templateBytes);
   const page = pdfDoc.getPages()[0];
@@ -90,7 +89,6 @@ async function buildCertificatePdf({ phone, title, bloodBank, donationDate, plac
   const certId = makeCertificateId(phone);
 
   // Coordinates tuned for your BDM_Certificate.pdf (A4 landscape).
-  // If you want even tighter alignment, we can fine-tune after one more screenshot.
   const yName = H * 0.56; // Mr./Mrs. ______ line
   const yAt = H * 0.49; // at ______ line (slightly up)
   const yOn = H * 0.425; // on ______ line (slightly up; shares row with Blood Bank)
@@ -117,34 +115,6 @@ async function buildCertificatePdf({ phone, title, bloodBank, donationDate, plac
 
   return await pdfDoc.save();
 }
-
-app.get("/api/certificate", async (req, res) => {
-  const phone = String(req.query.phone || "").replace(/\s+/g, "");
-  if (!/^\d{10}$/.test(phone)) return res.status(400).json({ error: "Invalid phone (must be 10 digits)" });
-
-  const donors = await readDonors();
-  const donor = donors.find((d) => String(d?.phone || "").replace(/\s+/g, "") === phone) || null;
-  if (!donor) return res.status(404).json({ error: "Donor not found" });
-
-  let out;
-  try {
-    out = await buildCertificatePdf({
-      phone,
-      title: "Mr.",
-      bloodBank: "",
-      donationDate: new Date(),
-      place: donor.area,
-      donor,
-    });
-  } catch {
-    return res.status(500).json({ error: "Could not build certificate PDF" });
-  }
-  const fileName = `BDM_Certificate_${String(donor.name || "Donor").trim().replace(/\s+/g, "_")}.pdf`;
-
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
-  res.send(Buffer.from(out));
-});
 
 app.post("/api/certificate", async (req, res) => {
   const phone = String(req.body?.phone || "").replace(/\s+/g, "");
@@ -189,19 +159,15 @@ app.post("/api/donors", async (req, res) => {
   const donors = await readDonors();
   const existingIdx = donors.findIndex((d) => String(d?.phone || "") === donor.phone);
 
-  if (existingIdx >= 0) {
-    // update existing donor by phone
-    donors[existingIdx] = { ...donors[existingIdx], ...donor };
-  } else {
-    donors.unshift(donor);
-  }
+  if (existingIdx >= 0) donors[existingIdx] = { ...donors[existingIdx], ...donor };
+  else donors.unshift(donor);
 
   await writeDonors(donors);
   res.status(201).json({ donor });
 });
 
-// Serve the static site from this folder
-app.use(express.static(__dirname));
+// Serve the static site from repo root
+app.use(express.static(path.join(__dirname, "..")));
 
 const port = Number(process.env.PORT || 5174);
 app.listen(port, () => {
