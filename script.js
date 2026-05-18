@@ -1,5 +1,5 @@
 /*
-  Blood Donors Mangalore — Interactions
+  Blood Donors Mangaluru — Interactions
   - Loader fade
   - Mobile nav drawer
   - Live search filtering + interactive donor cards

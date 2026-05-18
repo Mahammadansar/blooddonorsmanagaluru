@@ -64,10 +64,18 @@
   const meta = $("#certMeta");
   const closeBtn = $("#certClose");
   const downloadA = $("#certDownload");
+  const downloadPngBtn = $("#certDownloadPng");
+  const downloadJpgBtn = $("#certDownloadJpg");
   const shareBtn = $("#certShare");
+
+  const PDFJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174";
+  let pdfjsReady = null;
 
   let pdfBlob = null;
   let pdfName = "BDM_Certificate.pdf";
+  let imageBaseName = "BDM_Certificate";
+  let pngBlob = null;
+  let jpgBlob = null;
   let objectUrl = null;
 
   function setError(id, message) {
@@ -99,7 +107,164 @@
     if (!result) return;
     result.hidden = true;
     if (meta) meta.textContent = "";
+    pdfBlob = null;
+    pngBlob = null;
+    jpgBlob = null;
     revokeUrl();
+  }
+
+  function ensurePdfJs() {
+    if (pdfjsReady) return pdfjsReady;
+    pdfjsReady = new Promise((resolve, reject) => {
+      const lib = globalThis.pdfjsLib;
+      if (lib) {
+        lib.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN}/pdf.worker.min.js`;
+        resolve(lib);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = `${PDFJS_CDN}/pdf.min.js`;
+      script.onload = () => {
+        const loaded = globalThis.pdfjsLib;
+        if (!loaded) {
+          reject(new Error("PDF renderer failed to load"));
+          return;
+        }
+        loaded.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN}/pdf.worker.min.js`;
+        resolve(loaded);
+      };
+      script.onerror = () => reject(new Error("PDF renderer failed to load"));
+      document.head.appendChild(script);
+    });
+    return pdfjsReady;
+  }
+
+  async function pdfBlobToCanvas(blob, scale = 2) {
+    const pdfjs = await ensurePdfJs();
+    const data = await blob.arrayBuffer();
+    const pdf = await pdfjs.getDocument({ data }).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas not supported");
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return canvas;
+  }
+
+  function canvasToBlob(canvas, type, quality = 0.92) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("Image export failed"))),
+        type,
+        quality,
+      );
+    });
+  }
+
+  async function getImageBlob(format) {
+    if (!pdfBlob) throw new Error("Certificate not ready");
+    if (format === "png" && pngBlob) return pngBlob;
+    if (format === "jpeg" && jpgBlob) return jpgBlob;
+    const canvas = await pdfBlobToCanvas(pdfBlob, 2);
+    const type = format === "png" ? "image/png" : "image/jpeg";
+    const blob = await canvasToBlob(canvas, type, 0.92);
+    if (format === "png") pngBlob = blob;
+    else jpgBlob = blob;
+    return blob;
+  }
+
+  function triggerDownload(blob, fileName) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function downloadImage(format) {
+    if (!pdfBlob) {
+      showToast("Certificate not ready yet.");
+      return;
+    }
+    const ext = format === "png" ? "png" : "jpg";
+    const label = format === "png" ? "PNG" : "JPG";
+    try {
+      showToast(`Preparing ${label}…`);
+      const blob = await getImageBlob(format);
+      triggerDownload(blob, `${imageBaseName}.${ext}`);
+      showToast(`${label} downloaded.`);
+    } catch {
+      showToast(`Could not create ${label}. Try PDF download.`);
+    }
+  }
+
+  const SHARE_TITLE = "Blood Donor Registration Certificate";
+  const SHARE_TEXT = "BLOOD DONORS MANGALURU (R) — DONATE BLOOD DONATE LIFE";
+
+  function prewarmShareImage() {
+    if (!pdfBlob) return;
+    getImageBlob("jpeg").catch(() => {});
+  }
+
+  async function tryNativeShare(file) {
+    if (!navigator.share) return false;
+    const payloads = [
+      { title: SHARE_TITLE, text: SHARE_TEXT, files: [file] },
+      { files: [file] },
+    ];
+    for (const shareData of payloads) {
+      try {
+        if (navigator.canShare && !navigator.canShare(shareData)) continue;
+        await navigator.share(shareData);
+        return true;
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") throw e;
+      }
+    }
+    return false;
+  }
+
+  async function shareCertificate() {
+    if (!pdfBlob) {
+      showToast("Certificate not ready yet.");
+      return;
+    }
+
+    const filePlans = [
+      async () => {
+        const blob = await getImageBlob("jpeg");
+        return new File([blob], `${imageBaseName}.jpg`, { type: "image/jpeg" });
+      },
+      async () => {
+        const blob = await getImageBlob("png");
+        return new File([blob], `${imageBaseName}.png`, { type: "image/png" });
+      },
+      async () => new File([pdfBlob], pdfName, { type: "application/pdf" }),
+    ];
+
+    showToast("Preparing to share…");
+
+    for (const buildFile of filePlans) {
+      try {
+        const file = await buildFile();
+        const shared = await tryNativeShare(file);
+        if (shared) {
+          showToast("Shared successfully.");
+          return;
+        }
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") return;
+      }
+    }
+
+    showToast("Sharing not supported here. Download PNG/JPG and share manually.");
   }
 
   closeBtn?.addEventListener("click", closeReady);
@@ -173,9 +338,11 @@
       downloadA.style.pointerEvents = on ? "" : "none";
       downloadA.style.opacity = on ? "" : "0.65";
     }
-    if (shareBtn instanceof HTMLButtonElement) {
-      shareBtn.disabled = !on;
-      shareBtn.style.opacity = on ? "" : "0.7";
+    for (const btn of [downloadPngBtn, downloadJpgBtn, shareBtn]) {
+      if (btn instanceof HTMLButtonElement) {
+        btn.disabled = !on;
+        btn.style.opacity = on ? "" : "0.7";
+      }
     }
   }
 
@@ -197,6 +364,8 @@
   async function buildForPhone(phone) {
     revokeUrl();
     pdfBlob = null;
+    pngBlob = null;
+    jpgBlob = null;
     setActionsEnabled(false);
     if (result instanceof HTMLElement) result.hidden = true;
     if (meta) meta.textContent = "";
@@ -231,13 +400,15 @@
     });
     if (!blob) return null;
     pdfBlob = blob;
-    pdfName = `BDM_Certificate_${safeFilePart(donor.name)}.pdf`;
+    imageBaseName = `BDM_Certificate_${safeFilePart(donor.name)}`;
+    pdfName = `${imageBaseName}.pdf`;
     objectUrl = URL.createObjectURL(pdfBlob);
     if (downloadA instanceof HTMLAnchorElement) {
       downloadA.href = objectUrl;
       downloadA.download = pdfName;
     }
     setActionsEnabled(true);
+    prewarmShareImage();
     return donor;
   }
 
@@ -280,27 +451,8 @@
     }
   });
 
-  shareBtn?.addEventListener("click", async () => {
-    if (!pdfBlob) {
-      showToast("Certificate not ready yet.");
-      return;
-    }
-    const file = new File([pdfBlob], pdfName, { type: "application/pdf" });
-    const shareData = {
-      title: "Blood Donor Registration Certificate",
-      text: "BLOOD DONORS MANGALURU (R) — DONATE BLOOD DONATE LIFE",
-      files: [file],
-    };
+  downloadPngBtn?.addEventListener("click", () => downloadImage("png"));
+  downloadJpgBtn?.addEventListener("click", () => downloadImage("jpeg"));
 
-    try {
-      if (navigator.canShare?.(shareData) && navigator.share) {
-        await navigator.share(shareData);
-        showToast("Shared successfully.");
-        return;
-      }
-    } catch {
-      // fall through
-    }
-    showToast("Sharing not supported here. Download and share manually.");
-  });
+  shareBtn?.addEventListener("click", () => shareCertificate());
 })();
