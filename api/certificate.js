@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { certificateAccessCodeValid } from "../lib/certificateAccessCode.js";
 import { readDonors } from "./_lib/donors.js";
 import { sendError } from "./_lib/kv.js";
 
@@ -63,15 +64,22 @@ export default async function handler(req, res) {
     return sendError(res, 405, "Method Not Allowed");
   }
 
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+
   const phone = String(req.body?.phone || "").replace(/\s+/g, "");
   const title = String(req.body?.title || "Mr.").trim();
   const bloodBank = String(req.body?.bloodBank || "").trim();
   const donationDate = String(req.body?.donationDate || "").trim(); // YYYY-MM-DD
   const place = String(req.body?.place || "").trim();
+  const certCode = String(req.body?.certCode ?? "").trim();
 
   if (!/^\d{10}$/.test(phone)) return sendError(res, 400, "Invalid phone (must be 10 digits)");
   if (!bloodBank) return sendError(res, 400, "Blood bank required");
   if (!donationDate) return sendError(res, 400, "Donation date required");
+  if (!certCode) return sendError(res, 400, "Access code required");
+  if (certCode.length > 128) return sendError(res, 400, "Access code too long");
+  if (!certificateAccessCodeValid(certCode)) return sendError(res, 403, "Invalid access code");
 
   const donors = await readDonors();
   const donor = donors.find((d) => String(d?.phone || "").replace(/\s+/g, "") === phone) || null;
@@ -95,6 +103,7 @@ export default async function handler(req, res) {
   res.statusCode = 200;
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+  res.setHeader("X-Content-Type-Options", "nosniff");
   res.end(Buffer.from(out));
 }
 

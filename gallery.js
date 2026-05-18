@@ -35,7 +35,7 @@
     const year = $("#year");
     if (year) year.textContent = String(new Date().getFullYear());
     $$(".reveal").forEach((el) => el.classList.add("reveal--in"));
-    window.setTimeout(hideLoader, 450);
+    window.setTimeout(hideLoader, 900);
   });
 
   const grid = $("#galleryGrid");

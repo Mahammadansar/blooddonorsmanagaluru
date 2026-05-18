@@ -48,9 +48,8 @@
   document.addEventListener("DOMContentLoaded", () => {
     const year = $("#year");
     if (year) year.textContent = String(new Date().getFullYear());
-    // Certificate page uses the same `.reveal` CSS; ensure content is visible.
     document.querySelectorAll(".reveal").forEach((el) => el.classList.add("reveal--in"));
-    window.setTimeout(hideLoader, 450);
+    window.setTimeout(hideLoader, 900);
   });
 
   // Form
@@ -60,6 +59,7 @@
   const bloodBankInput = $("#certBloodBank");
   const dateInput = $("#certDate");
   const placeInput = $("#certPlace");
+  const accessCodeInput = $("#certAccessCode");
   const result = $("#certResult");
   const meta = $("#certMeta");
   const closeBtn = $("#certClose");
@@ -83,7 +83,9 @@
               ? dateInput
               : id === "certPlace"
                 ? placeInput
-                : null;
+                : id === "certAccessCode"
+                  ? accessCodeInput
+                  : null;
     input?.closest(".field")?.classList.toggle("field--invalid", Boolean(message));
     if (err) err.textContent = message || "";
   }
@@ -122,23 +124,48 @@
     return data?.donor || null;
   }
 
-  async function fetchCertificatePdf(phone) {
-    // kept for backward compatibility (not used)
-    const res = await fetch(`./api/certificate?phone=${encodeURIComponent(phone)}`, { cache: "no-store" });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error("Certificate fetch failed");
-    return await res.blob();
+  async function readApiErrorMessage(res) {
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) {
+      const j = await res.json().catch(() => ({}));
+      return String(j?.error || j?.message || res.statusText || "Request failed");
+    }
+    const t = await res.text().catch(() => "");
+    return t || res.statusText || "Request failed";
+  }
+
+  async function assertBlobIsPdf(blob) {
+    const head = await blob.slice(0, 5).arrayBuffer();
+    const sig = new TextDecoder("ascii", { fatal: false }).decode(head);
+    if (!sig.startsWith("%PDF-")) {
+      throw new Error("Invalid access code or server error (unexpected response).");
+    }
   }
 
   async function generateCertificateFromTemplate(payload) {
     const res = await fetch("./api/certificate", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        Pragma: "no-cache",
+      },
       body: JSON.stringify(payload),
     });
     if (res.status === 404) return null;
-    if (!res.ok) throw new Error("Certificate generate failed");
-    return await res.blob();
+    const ct = (res.headers.get("content-type") || "").toLowerCase();
+    if (!res.ok) {
+      const msg = await readApiErrorMessage(res);
+      throw new Error(msg);
+    }
+    if (!ct.includes("application/pdf")) {
+      const msg = await readApiErrorMessage(res);
+      throw new Error(msg || "Invalid access code or server error.");
+    }
+    const blob = await res.blob();
+    await assertBlobIsPdf(blob);
+    return blob;
   }
 
   function setActionsEnabled(on) {
@@ -152,21 +179,9 @@
     }
   }
 
-  async function buildForPhone(phone) {
-    revokeUrl();
-    pdfBlob = null;
-    setActionsEnabled(false);
-    showToast("Fetching your registration…");
-
-    const donor = await fetchDonorByPhone(phone);
-    if (!donor) return null;
-
-    const title = String(titleInput?.value || "Mr.").trim() || "Mr.";
+  function validateCertFields() {
     const bloodBank = String(bloodBankInput?.value || "").trim();
     const date = String(dateInput?.value || "").trim();
-    const placeOverride = String(placeInput?.value || "").trim();
-    const place = placeOverride || String(donor.area || "").trim();
-
     let ok = true;
     if (!bloodBank) {
       ok = false;
@@ -176,7 +191,34 @@
       ok = false;
       setError("certDate", "Select donation date.");
     } else setError("certDate", "");
-    if (!ok) return null;
+    return ok;
+  }
+
+  async function buildForPhone(phone) {
+    revokeUrl();
+    pdfBlob = null;
+    setActionsEnabled(false);
+    if (result instanceof HTMLElement) result.hidden = true;
+    if (meta) meta.textContent = "";
+
+    const donor = await fetchDonorByPhone(phone);
+    if (!donor) return null;
+
+    if (!validateCertFields()) return null;
+
+    const accessRaw = String(accessCodeInput?.value || "").trim();
+    if (!accessRaw) {
+      setError("certAccessCode", "Enter the access code.");
+      showToast("Enter the access code.");
+      return null;
+    }
+    setError("certAccessCode", "");
+
+    const title = String(titleInput?.value || "Mr.").trim() || "Mr.";
+    const bloodBank = String(bloodBankInput?.value || "").trim();
+    const date = String(dateInput?.value || "").trim();
+    const placeOverride = String(placeInput?.value || "").trim();
+    const place = placeOverride || String(donor.area || "").trim();
 
     showToast("Generating certificate…");
     const blob = await generateCertificateFromTemplate({
@@ -185,6 +227,7 @@
       bloodBank,
       donationDate: date,
       place,
+      certCode: accessRaw,
     });
     if (!blob) return null;
     pdfBlob = blob;
@@ -200,6 +243,9 @@
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (result instanceof HTMLElement) result.hidden = true;
+    if (meta) meta.textContent = "";
+
     const phone = String(phoneInput?.value || "").replace(/\s+/g, "");
 
     if (!/^\d{10}$/.test(phone)) {
@@ -208,12 +254,12 @@
     }
     setError("certPhone", "");
 
+    if (!validateCertFields()) return;
+
     try {
       const donor = await buildForPhone(phone);
       if (!donor) {
-        // Donor missing OR missing required fields is handled with per-field errors
-        if (!/^\d{10}$/.test(phone)) showToast("Enter a valid phone.");
-        else showToast("Could not generate certificate. Check inputs or registration.");
+        showToast("Could not generate certificate. Check access code, inputs, or registration.");
         return;
       }
       const placeOverride = String(placeInput?.value || "").trim();
@@ -228,8 +274,9 @@
       }
       if (result) result.hidden = false;
       showToast("Certificate ready.");
-    } catch {
-      showToast("Could not generate certificate. Is the server running?");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      showToast(msg || "Could not generate certificate. Is the server running?");
     }
   });
 
@@ -257,4 +304,3 @@
     showToast("Sharing not supported here. Download and share manually.");
   });
 })();
-

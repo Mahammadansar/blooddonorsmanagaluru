@@ -145,17 +145,18 @@ strong {
 }
 
 .loader__card {
-  width: min(520px, calc(100% - 48px));
-  border-radius: 26px;
+  width: min(420px, calc(100% - 48px));
+  border-radius: 28px;
   border: 1px solid var(--stroke);
   background: linear-gradient(180deg, var(--panel2), var(--panel));
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
-  padding: 22px 22px;
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 16px;
+  padding: 36px 28px 30px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
+  gap: 20px;
 }
 
 /* Heartbeat loader (replaces logo pulse) */
@@ -228,45 +229,56 @@ strong {
 }
 
 .loader__pulse {
-  width: 64px;
-  height: 64px;
+  width: 148px;
+  height: 148px;
+  flex-shrink: 0;
   border-radius: 999px;
   background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.55), rgba(255, 42, 58, 0.28) 45%, rgba(255, 42, 58, 0.05));
-  box-shadow: var(--glow);
+  box-shadow: var(--glow), 0 24px 48px rgba(255, 42, 58, 0.12);
   position: relative;
   display: grid;
   place-items: center;
-  overflow: hidden;
+  overflow: visible;
+  transform: scale(0.35);
+  opacity: 0;
+  animation: loaderPop 0.9s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
 }
 
 .loader__logo {
-  width: 40px;
-  height: 40px;
+  width: 108px;
+  height: 108px;
   object-fit: contain;
-  /* Make the logo pop on both themes */
   background: color-mix(in oklab, var(--panel2) 82%, transparent);
-  border: 1px solid color-mix(in oklab, var(--stroke) 70%, transparent);
+  border: 2px solid color-mix(in oklab, var(--stroke) 70%, transparent);
   border-radius: 999px;
-  padding: 6px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
-  filter: drop-shadow(0 0 12px rgba(255, 42, 58, 0.18));
+  padding: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  filter: drop-shadow(0 0 20px rgba(255, 42, 58, 0.22));
+  transform: scale(0.5);
+  opacity: 0;
+  animation: loaderLogoPop 0.75s cubic-bezier(0.34, 1.5, 0.64, 1) 0.1s forwards;
 }
 
 .loader__pulse::before,
 .loader__pulse::after {
   content: "";
   position: absolute;
-  inset: -10px;
+  inset: -16px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 42, 58, 0.32);
+  border: 2px solid rgba(255, 42, 58, 0.32);
   opacity: 0.6;
   animation: pulseRing 1.25s ease-out infinite;
 }
 
 .loader__pulse::after {
-  inset: -18px;
+  inset: -28px;
   opacity: 0.3;
   animation-delay: 0.32s;
+}
+
+.loader__text {
+  display: grid;
+  gap: 6px;
 }
 
 /* Extra crisp inner ring for a more premium mark */
@@ -277,13 +289,14 @@ strong {
 .loader__brand {
   font-weight: 900;
   letter-spacing: -0.02em;
-  font-size: 18px;
+  font-size: clamp(17px, 4.5vw, 20px);
+  line-height: 1.2;
 }
 
 .loader__hint {
-  margin-top: 4px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
 }
 
 .loader--hide {
@@ -306,6 +319,36 @@ strong {
   100% {
     transform: scale(1.35);
     opacity: 0;
+  }
+}
+
+@keyframes loaderPop {
+  0% {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes loaderLogoPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
@@ -337,12 +380,12 @@ strong {
 }
 
 .brand__mark {
-  width: 26px;
-  height: 26px;
-  border-radius: 13px 13px 13px 4px;
-  transform: rotate(45deg);
-  background: radial-gradient(circle at 35% 35%, color-mix(in oklab, var(--panel2) 70%, white), rgba(255, 42, 58, 0.42));
-  box-shadow: var(--glowSoft);
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--panel2) 88%, transparent);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px color-mix(in oklab, var(--stroke) 65%, transparent);
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -350,16 +393,11 @@ strong {
 }
 
 .brand__logo {
-  width: 18px;
-  height: 18px;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
-  transform: rotate(-45deg);
-  background: color-mix(in oklab, var(--panel2) 88%, transparent);
-  border: 1px solid color-mix(in oklab, var(--stroke) 75%, transparent);
-  border-radius: 999px;
-  padding: 3px;
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
-  filter: drop-shadow(0 0 10px rgba(255, 42, 58, 0.14));
+  display: block;
+  filter: drop-shadow(0 0 8px rgba(255, 42, 58, 0.12));
 }
 
 .brand__text {
@@ -1508,6 +1546,13 @@ strong {
   }
 }
 
+/* Certificate page — shared access code field */
+.certAccess {
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--stroke);
+}
+
 /* Certificate page result panel (non-overlay) */
 .certResult {
   margin-top: 14px;
@@ -2484,6 +2529,8 @@ img.emoji {
   .glassDot,
   .impactCard__icon,
   .emergency__bg,
+  .loader__pulse,
+  .loader__logo,
   .loader__pulse::before,
   .loader__pulse::after,
   .heartbeat__line,

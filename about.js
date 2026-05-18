@@ -35,7 +35,7 @@
     // Ensure flag emojis render consistently (some systems show SA/AE codes instead).
     window.twemoji?.parse(document.body, { folder: "svg", ext: ".svg" });
     document.querySelectorAll(".reveal").forEach((el) => el.classList.add("reveal--in"));
-    window.setTimeout(hideLoader, 450);
+    window.setTimeout(hideLoader, 900);
   });
 })();
 

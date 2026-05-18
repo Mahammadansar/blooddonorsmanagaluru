@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { certificateAccessCodeValid } from "../lib/certificateAccessCode.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,15 +121,22 @@ async function buildCertificatePdf({ phone, title, bloodBank, donationDate, plac
 }
 
 app.post("/api/certificate", async (req, res) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+
   const phone = String(req.body?.phone || "").replace(/\s+/g, "");
   const title = String(req.body?.title || "Mr.").trim();
   const bloodBank = String(req.body?.bloodBank || "").trim();
   const donationDate = String(req.body?.donationDate || "").trim(); // YYYY-MM-DD
   const place = String(req.body?.place || "").trim();
+  const certCode = String(req.body?.certCode ?? "").trim();
 
   if (!/^\d{10}$/.test(phone)) return res.status(400).json({ error: "Invalid phone (must be 10 digits)" });
   if (!bloodBank) return res.status(400).json({ error: "Blood bank required" });
   if (!donationDate) return res.status(400).json({ error: "Donation date required" });
+  if (!certCode) return res.status(400).json({ error: "Access code required" });
+  if (certCode.length > 128) return res.status(400).json({ error: "Access code too long" });
+  if (!certificateAccessCodeValid(certCode)) return res.status(403).json({ error: "Invalid access code" });
 
   const donors = await readDonors();
   const donor = donors.find((d) => String(d?.phone || "").replace(/\s+/g, "") === phone) || null;
@@ -151,6 +159,7 @@ app.post("/api/certificate", async (req, res) => {
   const fileName = `BDM_Certificate_${String(donor.name || "Donor").trim().replace(/\s+/g, "_")}.pdf`;
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+  res.setHeader("X-Content-Type-Options", "nosniff");
   res.send(Buffer.from(out));
 });
 

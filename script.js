@@ -693,8 +693,8 @@
     measureAndAdaptPerf();
     loadDonorsFromServer();
 
-    // Let the pulse land for a moment, then fade loader.
-    window.setTimeout(hideLoader, prefersReducedMotion ? 100 : 650);
+    // Let the logo pop-in finish, then fade loader.
+    window.setTimeout(hideLoader, prefersReducedMotion ? 100 : 1000);
   });
 })();
 

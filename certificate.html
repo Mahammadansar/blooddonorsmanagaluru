@@ -23,14 +23,8 @@
     <!-- Loading Screen -->
     <div id="loader" class="loader" aria-hidden="true">
       <div class="loader__card" role="status" aria-live="polite" aria-label="Loading">
-        <div class="loader__beat" aria-hidden="true">
-          <svg class="loaderBeat" viewBox="0 0 720 90" role="img" aria-label="Loading animation">
-            <path
-              class="loaderBeat__line"
-              d="M0,45 L120,45 L160,45 L180,10 L210,80 L245,45 L330,45 L360,45 L380,20 L405,75 L440,45 L720,45"
-            />
-          </svg>
-          <span class="loaderBeat__dot" aria-hidden="true"></span>
+        <div class="loader__pulse" aria-hidden="true">
+          <img class="loader__logo" src="./BDM_logo.png" alt="" />
         </div>
         <div class="loader__text">
           <div class="loader__brand">BLOOD DONORS MANGALURU (R)</div>
@@ -83,7 +77,8 @@
           <div class="joinCopy reveal">
             <h1 class="section__title">Donor Certificate</h1>
             <p class="section__subtitle">
-              Enter the phone number you used during registration to generate your certificate.
+              Enter your registered phone, donation details, and the <strong>access code</strong> provided by BLOOD
+              DONORS MANGALURU (R) to generate your PDF.
             </p>
             <ul class="ticks">
               <li>Instant PDF download</li>
@@ -142,9 +137,26 @@
                 </label>
               </div>
 
+              <div class="certAccess">
+                <label class="field field--wide">
+                  <span class="field__label">Access code</span>
+                  <input
+                    id="certAccessCode"
+                    class="field__control"
+                    type="password"
+                    maxlength="128"
+                    spellcheck="false"
+                    autocomplete="off"
+                    placeholder="Access code"
+                    required
+                  />
+                  <span class="field__error" data-error-for="certAccessCode" aria-live="polite"></span>
+                </label>
+              </div>
+
               <div class="donorForm__actions">
                 <button class="btn btn--primary" type="submit">
-                  <span>Generate Certificate</span>
+                  <span>Generate certificate</span>
                   <span class="btn__edge" aria-hidden="true"></span>
                 </button>
                 <p class="tiny subtle">
@@ -200,7 +212,9 @@
       <div class="footer__inner">
         <div class="footer__left">
           <div class="brand brand--footer">
-            <span class="brand__mark" aria-hidden="true"></span>
+            <span class="brand__mark" aria-hidden="true">
+              <img class="brand__logo" src="./BDM_logo.png" alt="" />
+            </span>
             <span class="brand__text">BLOOD DONORS <span>MANGALURU (R)</span></span>
           </div>
           <p class="tiny subtle">
