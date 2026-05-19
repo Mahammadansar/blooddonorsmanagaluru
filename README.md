@@ -66,3 +66,15 @@ Best option: add a **Railway Volume**, mount it (example mount path: `/data`), t
 
 This makes donor registrations persist at `/data/donors.json`.
 
+### Under-construction landing page
+
+While the full site is not public yet, show `building.html` at the root URL:
+
+1. Railway → your service → **Variables**
+2. Add: `LANDING_PAGE` = `building.html`
+3. Redeploy (or wait for the automatic redeploy)
+
+Visitors opening your Railway URL see the construction page. The team can still open `/index.html`, `/about.html`, etc. directly.
+
+When you go live, **remove** `LANDING_PAGE` or set it to `index.html`.
+

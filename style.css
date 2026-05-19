@@ -2519,9 +2519,146 @@ img.emoji {
   }
 }
 
+/* Under construction page */
+.buildingPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navWrap--minimal .nav {
+  justify-content: center;
+}
+
+.pageBuilding {
+  position: relative;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 32px 18px 48px;
+  min-height: calc(100vh - 160px);
+}
+
+.pageBuilding__bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.pageBuilding__inner {
+  width: min(640px, 100%);
+  display: grid;
+  gap: 18px;
+}
+
+.pageBuilding__card {
+  padding: 28px 22px 24px;
+  text-align: center;
+}
+
+.pageBuilding__badge {
+  margin-bottom: 10px;
+}
+
+.pageBuilding__title {
+  margin: 10px 0 8px;
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 950;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.pageBuilding__text {
+  margin: 0 auto;
+  max-width: 48ch;
+  color: var(--muted);
+  line-height: 1.65;
+  font-weight: 600;
+}
+
+.pageBuilding__progress {
+  margin-top: 22px;
+  display: grid;
+  gap: 8px;
+}
+
+.pageBuilding__progressBar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.pageBuilding__progressFill {
+  display: block;
+  height: 100%;
+  width: 62%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--redDeep), var(--red), var(--red2));
+  box-shadow: 0 0 18px rgba(255, 42, 58, 0.35);
+  animation: buildingProgress 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes buildingProgress {
+  0% {
+    width: 48%;
+    opacity: 0.85;
+  }
+  100% {
+    width: 78%;
+    opacity: 1;
+  }
+}
+
+.pageBuilding__actions {
+  margin-top: 22px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pageBuilding__note {
+  margin-top: 16px;
+}
+
+.pageBuilding__note a {
+  color: var(--red2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pageBuilding__ticks {
+  justify-items: center;
+  text-align: left;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.footer--compact .footer__inner {
+  padding-top: 20px;
+  padding-bottom: 28px;
+}
+
+@media (max-width: 520px) {
+  .pageBuilding__actions {
+    flex-direction: column;
+  }
+  .pageBuilding__actions .btn {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .pageBuilding__progressFill {
+    animation: none;
+    width: 62%;
   }
   .reveal {
     transition: none;
