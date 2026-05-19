@@ -18,21 +18,50 @@
   const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
   let perfMode = false;
 
+  function viewportSize() {
+    return {
+      w: document.documentElement.clientWidth,
+      h: document.documentElement.clientHeight,
+    };
+  }
+
   function setPerfMode(on) {
     perfMode = Boolean(on);
     document.body.classList.toggle("perfMode", perfMode);
-    if (perfMode) {
-      stopParticles?.();
-    } else {
-      startParticles?.();
-    }
+    if (perfMode) stopParticles?.();
+    else startParticles?.();
   }
 
   // --- Loader ---------------------------------------------------------------
   const loader = $("#loader");
+  let scrollAnimationsStarted = false;
+
+  function replayCssAnimation(el) {
+    if (!el) return;
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.style.animation = "";
+  }
+
+  function isInViewport(el, ratio = 0.12) {
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const rect = el.getBoundingClientRect();
+    const visible = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
+    return visible >= rect.height * ratio || visible >= vh * ratio;
+  }
+
   const hideLoader = () => {
-    if (!loader) return;
+    const runEntrance = () => {
+      playHeroEntrance();
+      startScrollAnimations();
+      startParticles();
+    };
+    if (!loader) {
+      runEntrance();
+      return;
+    }
     loader.classList.add("loader--hide");
+    window.setTimeout(runEntrance, 120);
     window.setTimeout(() => loader.remove(), 700);
   };
 
@@ -143,8 +172,16 @@
   }
   window.addEventListener("scroll", updateToTop, { passive: true });
 
-  // --- Scroll reveal -------------------------------------------------------
-  const revealEls = $$(".reveal");
+  // --- Scroll reveal (deferred until loader hides) -------------------------
+  const heroRoot = $(".hero");
+  const heroRevealEls = heroRoot ? $$(".reveal", heroRoot) : [];
+  const heroCounterEls = heroRoot ? $$("[data-counter]", heroRoot) : [];
+  const heroRevealSet = new Set(heroRevealEls);
+  const heroCounterSet = new Set(heroCounterEls);
+  const scrollRevealEls = $$(".reveal").filter((el) => !heroRevealSet.has(el));
+  const scrollCountEls = $$("[data-countup], [data-counter]").filter((el) => !heroCounterSet.has(el));
+  const countedEls = new Set();
+
   const revealIO =
     "IntersectionObserver" in window
       ? new IntersectionObserver(
@@ -155,13 +192,77 @@
               revealIO.unobserve(ent.target);
             }
           },
-          { threshold: 0.12 }
+          { threshold: 0.12, rootMargin: "0px 0px -4% 0px" }
         )
       : null;
 
-  revealEls.forEach((el) => {
-    if (!revealIO || prefersReducedMotion) el.classList.add("reveal--in");
-    else revealIO.observe(el);
+  function flushVisibleReveals() {
+    if (prefersReducedMotion) return;
+    for (const el of scrollRevealEls) {
+      if (el.classList.contains("reveal--in")) continue;
+      if (!isInViewport(el, 0.08)) continue;
+      el.classList.add("reveal--in");
+      revealIO?.unobserve(el);
+    }
+    for (const el of scrollCountEls) {
+      if (countedEls.has(el)) continue;
+      if (!isInViewport(el, 0.2)) continue;
+      triggerCount(el);
+      countIO?.unobserve(el);
+    }
+  }
+
+  function startScrollAnimations() {
+    if (scrollAnimationsStarted) return;
+    scrollAnimationsStarted = true;
+
+    if (!revealIO || prefersReducedMotion) {
+      scrollRevealEls.forEach((el) => el.classList.add("reveal--in"));
+    } else {
+      scrollRevealEls.forEach((el) => revealIO.observe(el));
+    }
+
+    if (!countIO) {
+      scrollCountEls.forEach((el) => triggerCount(el));
+    } else {
+      scrollCountEls.forEach((el) => countIO.observe(el));
+    }
+
+    flushVisibleReveals();
+  }
+
+  function playHeroEntrance() {
+    if (!heroRoot) return;
+
+    if (prefersReducedMotion) {
+      heroRevealEls.forEach((el) => el.classList.add("reveal--in"));
+      heroCounterEls.forEach((el) => triggerCount(el));
+      return;
+    }
+
+    heroRevealEls.forEach((el, i) => {
+      window.setTimeout(() => el.classList.add("reveal--in"), i * 85);
+    });
+
+    const counterStart = heroRevealEls.length * 85 + 140;
+    heroCounterEls.forEach((el, i) => {
+      window.setTimeout(() => triggerCount(el), counterStart + i * 90);
+    });
+
+    window.setTimeout(() => {
+      replayCssAnimation($(".heartbeat__line"));
+      replayCssAnimation($(".heartbeat__dot"));
+    }, 180);
+  }
+
+  window.addEventListener("pageshow", (e) => {
+    if (!e.persisted || !heroRoot) return;
+    heroRevealEls.forEach((el) => el.classList.remove("reveal--in"));
+    heroCounterEls.forEach((el) => {
+      countedEls.delete(el);
+      el.textContent = "0";
+    });
+    playHeroEntrance();
   });
 
   // --- Count up ------------------------------------------------------------
@@ -180,33 +281,31 @@
     requestAnimationFrame(step);
   }
 
-  const countupEls = $$("[data-countup], [data-counter]");
+  function triggerCount(el) {
+    if (countedEls.has(el)) return;
+    countedEls.add(el);
+    const target = Number(el.getAttribute("data-target") || "0");
+    if (!Number.isFinite(target)) return;
+    if (prefersReducedMotion) {
+      el.textContent = new Intl.NumberFormat("en-IN").format(target);
+      return;
+    }
+    animateCount(el, target);
+  }
+
   const countIO =
     "IntersectionObserver" in window
       ? new IntersectionObserver(
           (entries) => {
             for (const ent of entries) {
               if (!ent.isIntersecting) continue;
-              const el = ent.target;
-              const target = Number(el.getAttribute("data-target") || "0");
-              if (!Number.isFinite(target)) continue;
-              if (prefersReducedMotion) el.textContent = String(target);
-              else animateCount(el, target);
-              countIO.unobserve(el);
+              triggerCount(ent.target);
+              countIO.unobserve(ent.target);
             }
           },
-          { threshold: 0.3 }
+          { threshold: 0.25, rootMargin: "0px 0px -6% 0px" }
         )
       : null;
-
-  countupEls.forEach((el) => {
-    if (!countIO) {
-      const target = Number(el.getAttribute("data-target") || "0");
-      el.textContent = String(target);
-      return;
-    }
-    countIO.observe(el);
-  });
 
   // --- Live Blood Search ---------------------------------------------------
   const donors = [];
@@ -522,13 +621,14 @@
   const particles = [];
   function initParticles() {
     if (!canvas || !ctx) return;
+    const { w, h } = viewportSize();
     particles.length = 0;
     // Keep this intentionally light (canvas + shadows can get expensive on low-end GPUs).
-    const count = Math.max(14, Math.min(38, Math.floor(window.innerWidth / 34)));
+    const count = Math.max(14, Math.min(38, Math.floor(w / 34)));
     for (let i = 0; i < count; i++) {
       particles.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
+        x: Math.random() * w,
+        y: Math.random() * h,
         r: 0.8 + Math.random() * 2.1,
         vx: (Math.random() - 0.5) * 0.28,
         vy: (Math.random() - 0.5) * 0.28,
@@ -540,14 +640,8 @@
   function getVignette() {
     if (!ctx) return null;
     if (vignette) return vignette;
-    const g = ctx.createRadialGradient(
-      window.innerWidth * 0.2,
-      window.innerHeight * 0.15,
-      40,
-      window.innerWidth * 0.5,
-      window.innerHeight * 0.6,
-      Math.max(window.innerWidth, window.innerHeight)
-    );
+    const { w, h } = viewportSize();
+    const g = ctx.createRadialGradient(w * 0.2, h * 0.15, 40, w * 0.5, h * 0.6, Math.max(w, h));
     g.addColorStop(0, "rgba(255,42,58,0.045)");
     g.addColorStop(1, "rgba(0,0,0,0)");
     vignette = g;
@@ -566,12 +660,13 @@
       cancelAnimationFrame(raf);
       return;
     }
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    const { w, h } = viewportSize();
+    ctx.clearRect(0, 0, w, h);
 
     // soft vignette
     const grad = getVignette();
     if (grad) ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.fillRect(0, 0, w, h);
 
     // Per-particle glow is costly; keep it subtle.
     ctx.shadowBlur = 6;
@@ -580,10 +675,10 @@
     for (const p of particles) {
       p.x += p.vx;
       p.y += p.vy;
-      if (p.x < -20) p.x = window.innerWidth + 20;
-      if (p.x > window.innerWidth + 20) p.x = -20;
-      if (p.y < -20) p.y = window.innerHeight + 20;
-      if (p.y > window.innerHeight + 20) p.y = -20;
+      if (p.x < -20) p.x = w + 20;
+      if (p.x > w + 20) p.x = -20;
+      if (p.y < -20) p.y = h + 20;
+      if (p.y > h + 20) p.y = -20;
 
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -643,6 +738,11 @@
       resizeCanvas();
       initParticles();
       vignette = null;
+      if (!perfMode && !prefersReducedMotion) {
+        cancelAnimationFrame(raf);
+        particlesRunning = false;
+        raf = requestAnimationFrame(drawParticles);
+      }
     },
     { passive: true }
   );
@@ -653,47 +753,47 @@
   });
 
   // --- Lightweight perf monitor -------------------------------------------
-  // If the page can't hold a reasonable framerate shortly after load,
-  // switch off the heaviest effects automatically.
+  // Sample only after load + loader (avoids false positives). Perf mode turns
+  // off the canvas particles only — CSS ambient glows stay visible.
   function measureAndAdaptPerf() {
-    if (prefersReducedMotion) {
-      setPerfMode(true);
-      return;
-    }
+    if (prefersReducedMotion) return;
 
-    const sampleMs = 1200;
-    const start = performance.now();
-    let frames = 0;
-    let last = start;
-    let worstDt = 0;
+    const sampleMs = 1400;
+    const delayMs = 3200;
 
-    function tick(now) {
-      frames++;
-      const dt = now - last;
-      last = now;
-      if (dt > worstDt) worstDt = dt;
-      if (now - start < sampleMs) {
-        requestAnimationFrame(tick);
-        return;
+    window.setTimeout(() => {
+      const start = performance.now();
+      let frames = 0;
+      let last = start;
+      let worstDt = 0;
+
+      function tick(now) {
+        frames++;
+        const dt = now - last;
+        last = now;
+        if (dt > worstDt) worstDt = dt;
+        if (now - start < sampleMs) {
+          requestAnimationFrame(tick);
+          return;
+        }
+
+        const fps = (frames * 1000) / sampleMs;
+        // Only disable canvas on clearly struggling devices.
+        if (fps < 28 || worstDt > 120) setPerfMode(true);
       }
 
-      const fps = (frames * 1000) / sampleMs;
-      // Heuristic: < 45fps or large stutters => enable perf mode.
-      if (fps < 45 || worstDt > 55) setPerfMode(true);
-    }
-
-    requestAnimationFrame(tick);
+      requestAnimationFrame(tick);
+    }, delayMs);
   }
 
   // --- Boot ---------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", () => {
     updateToTop();
     runSearch();
-    startParticles();
     measureAndAdaptPerf();
     loadDonorsFromServer();
 
-    // Let the logo pop-in finish, then fade loader.
+    // Let the logo pop-in finish, then fade loader and run entrance animations.
     window.setTimeout(hideLoader, prefersReducedMotion ? 100 : 1000);
   });
 })();

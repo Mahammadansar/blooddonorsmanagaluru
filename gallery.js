@@ -23,19 +23,35 @@
     setDrawer(false);
   });
 
-  // Loader + reveal
+  const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+
+  function staggerReveal() {
+    const els = $$(".reveal");
+    if (prefersReducedMotion) {
+      els.forEach((el) => el.classList.add("reveal--in"));
+      return;
+    }
+    els.forEach((el, i) => {
+      window.setTimeout(() => el.classList.add("reveal--in"), i * 85);
+    });
+  }
+
+  // Loader + reveal (after loader fades so animations are visible)
   const loader = $("#loader");
   const hideLoader = () => {
-    if (!loader) return;
+    if (!loader) {
+      staggerReveal();
+      return;
+    }
     loader.classList.add("loader--hide");
+    window.setTimeout(staggerReveal, 120);
     window.setTimeout(() => loader.remove(), 700);
   };
 
   document.addEventListener("DOMContentLoaded", () => {
     const year = $("#year");
     if (year) year.textContent = String(new Date().getFullYear());
-    $$(".reveal").forEach((el) => el.classList.add("reveal--in"));
-    window.setTimeout(hideLoader, 900);
+    window.setTimeout(hideLoader, prefersReducedMotion ? 100 : 900);
   });
 
   const grid = $("#galleryGrid");
